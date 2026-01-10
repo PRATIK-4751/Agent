@@ -1,7 +1,10 @@
 import requests
 import base64
 import os
+from memory import retrieve_memories, store_memory
+from decider import memory_decider
 from dotenv import load_dotenv
+from browser import search_web
 
 load_dotenv()
 
@@ -17,14 +20,25 @@ def encode_image(path):
         return base64.b64encode(f.read()).decode("utf-8")
 
 def ask_ollama(system_prompt, user_prompt, image_path=None):
+    memories = retrieve_memories(user_prompt, top_k=3)
+    memory_context = ""
+    if memories:
+        memory_context = "\n\n[Previous context from memory]:\n"
+        for m in memories:
+            memory_context += f"- {m['content']}\n"
+    
+    full_prompt = memory_context + "\n" + user_prompt
+
     payload = {
         "model": OLLAMA_MODEL,
         "system": system_prompt,
-        "prompt": user_prompt,
+        "prompt": full_prompt,
         "stream": False
     }
+
     if image_path:
         payload["images"] = [encode_image(image_path)]
+
     res = requests.post(OLLAMA_URL, json=payload)
     if res.status_code != 200:
         raise Exception(res.text)
@@ -38,6 +52,17 @@ def ask_openrouter(system_prompt, user_prompt, image_path=None):
         "X-Title": "Vision-Agent"
     }
 
+    memories = retrieve_memories(user_prompt, top_k=3)
+    
+    messages = [{"role": "system", "content": system_prompt}]
+    
+    
+    if memories:
+        memory_text = "[Previous context from your memory]:\n"
+        for m in memories:
+            memory_text += f"- {m['content']}\n"
+        messages.append({"role": "system", "content": memory_text})
+
     content = [{"type": "text", "text": user_prompt}]
 
     if image_path:
@@ -48,12 +73,11 @@ def ask_openrouter(system_prompt, user_prompt, image_path=None):
             }
         })
 
+    messages.append({"role": "user", "content": content})
+
     payload = {
         "model": OPENROUTER_MODEL,
-        "messages": [
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": content}
-        ]
+        "messages": messages
     }
 
     res = requests.post(OPENROUTER_URL, headers=headers, json=payload)
@@ -62,30 +86,41 @@ def ask_openrouter(system_prompt, user_prompt, image_path=None):
     return res.json()["choices"][0]["message"]["content"]
 
 def ask(provider, system_prompt, user_prompt, image_path=None):
+    # Check if user wants to perform a web search
+    if "search " in user_prompt.lower() or "web search" in user_prompt.lower() or "look up " in user_prompt.lower():
+        # Extract search query from prompt
+        search_terms = ["search for ", "search ", "web search for ", "look up ", "find "]
+        query = user_prompt
+        
+        for term in search_terms:
+            if term in user_prompt.lower():
+                start_idx = user_prompt.lower().find(term) + len(term)
+                query = user_prompt[start_idx:].strip()
+                break
+        
+        # Perform web search
+        search_results = search_web(query, max_results=5)
+        
+        if search_results:
+            search_summary = "Here are the search results:\n\n"
+            for i, result in enumerate(search_results[:3]):  # Limit to top 3 results
+                search_summary += f"Result {i+1}:\n"
+                search_summary += f"Title: {result['title']}\n"
+                search_summary += f"URL: {result['url']}\n"
+                search_summary += f"Snippet: {result['snippet']}\n\n"
+            
+            # Append search results to the user prompt
+            enhanced_prompt = f"{user_prompt}\n\nWeb Search Results:\n{search_summary}"
+        else:
+            enhanced_prompt = f"{user_prompt}\n\nI tried searching the web for information, but couldn't find relevant results."
+    else:
+        enhanced_prompt = user_prompt
+    
     if provider == "local":
-        return ask_ollama(system_prompt, user_prompt, image_path)
-    if provider == "online":
-        return ask_openrouter(system_prompt, user_prompt, image_path)
-    raise Exception("Invalid provider")
+        reply = ask_ollama(system_prompt, enhanced_prompt, image_path)
+    elif provider == "online":
+        reply = ask_openrouter(system_prompt, enhanced_prompt, image_path)
+    else:
+        raise Exception("Invalid provider")
 
-if __name__ == "__main__":
-    print("Vision LLM Pipeline !\n")
-
-    provider = input("Choose LLM [local / online] =>> ").strip().lower()
-    system_prompt = input("System Prompt =>> ").strip()
-    image_path = input("Image path (enter to skip) =>> ").strip()
-    user_prompt = input("User Prompt (enter for auto) =>> ").strip()
-
-    if not system_prompt:
-        system_prompt = "You are a vision-language assistant. Base answers strictly on the image."
-
-    if not user_prompt:
-        user_prompt = "Describe the image in detail."
-
-    if not image_path:
-        image_path = None
-
-    response = ask(provider, system_prompt, user_prompt, image_path)
-
-    print("\nAI =>>\n")
-    print(response)
+    return reply
