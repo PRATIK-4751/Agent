@@ -73,11 +73,14 @@ if __name__ == "__main__":
 
     provider = input("Choose LLM [local / online] =>> ").strip().lower()
     system_prompt = input("System Prompt =>> ").strip()
-    user_prompt = input("User Prompt =>> ").strip()
     image_path = input("Image path (enter to skip) =>> ").strip()
+    user_prompt = input("User Prompt (enter for auto) =>> ").strip()
 
     if not system_prompt:
-        system_prompt = "You are a helpful AI assistant."
+        system_prompt = "You are a vision-language assistant. Base answers strictly on the image."
+
+    if not user_prompt:
+        user_prompt = "Describe the image in detail."
 
     if not image_path:
         image_path = None
