@@ -32,5 +32,223 @@
     },
     "timestamp": "2026-01-12T19:29:28.505851",
     "created_at": "2026-01-12T19:29:28.505867"
+  },
+  {
+    "id": "051e80316924225e",
+    "content": "User: Hi !\nAI:  It looks like the user has initiated a conversation with the AI, and the AI is responding by asking if there is something it can help with. The previous conversation only consisted of two greetings, so no further interaction took place. Is there a specific topic or question you would like to discuss or explore within this context? ",
+    "source_type": "conversation",
+    "metadata": {
+      "session_id": null,
+      "type": "conversation_turn",
+      "user_message": "Hi !",
+      "ai_response": " It looks like the user has initiated a conversation with the AI, and the AI is responding by asking if there is something it can help with. The previous conversation only consisted of two greetings, so no further interaction took place. Is there a specific topic or question you would like to discuss or explore within this context? "
+    },
+    "created_at": "2026-01-12T23:29:20.689952",
+    "stored_locally": true
+  },
+  {
+    "id": "8adf1fda2b339105",
+    "content": "User: who are you ? \nAI:  AI: I am an artificial intelligence designed to assist users with their questions and tasks. How can I help you today? ",
+    "source_type": "conversation",
+    "metadata": {
+      "session_id": null,
+      "type": "conversation_turn",
+      "user_message": "who are you ? ",
+      "ai_response": " AI: I am an artificial intelligence designed to assist users with their questions and tasks. How can I help you today? "
+    },
+    "created_at": "2026-01-12T23:29:36.987036",
+    "stored_locally": true
+  },
+  {
+    "id": "a063bd1f10180cf4",
+    "content": "User: Hello, what is 2+2?\nAI: Error: API Error: {\"error\":{\"message\":\"User not found.\",\"code\":401}}",
+    "source_type": "conversation",
+    "metadata": {
+      "session_id": null,
+      "type": "conversation",
+      "user_message": "Hello, what is 2+2?",
+      "ai_response": "Error: API Error: {\"error\":{\"message\":\"User not found.\",\"code\":401}}"
+    },
+    "created_at": "2026-01-12T23:36:31.440755"
+  },
+  {
+    "id": "721e1382f53008da",
+    "content": "User: Hello, what is 2+2?\nAI:  AI:  The answer to \"2 + 2\" is 4. Is there anything else you would like to know or discuss? ",
+    "source_type": "conversation",
+    "metadata": {
+      "session_id": null,
+      "type": "conversation",
+      "user_message": "Hello, what is 2+2?",
+      "ai_response": " AI:  The answer to \"2 + 2\" is 4. Is there anything else you would like to know or discuss? "
+    },
+    "created_at": "2026-01-12T23:36:51.075021"
+  },
+  {
+    "id": "0ee4bb76803a5762",
+    "content": "User: What is the capital of France?\nAI: Error: All models failed",
+    "source_type": "conversation",
+    "metadata": {
+      "session_id": null,
+      "type": "conversation",
+      "user_message": "What is the capital of France?",
+      "ai_response": "Error: All models failed"
+    },
+    "created_at": "2026-01-12T23:42:09.555616"
+  },
+  {
+    "id": "251366d76dc33e96",
+    "content": "User: What is 5+5?\nAI: AI:  The answer to 5 + 5 is 10. It appears I am able to process this request successfully, unlike the previous query which resulted in an error.",
+    "source_type": "conversation",
+    "metadata": {
+      "session_id": null,
+      "type": "conversation",
+      "user_message": "What is 5+5?",
+      "ai_response": "AI:  The answer to 5 + 5 is 10. It appears I am able to process this request successfully, unlike the previous query which resulted in an error."
+    },
+    "created_at": "2026-01-12T23:42:57.765506"
+  },
+  {
+    "id": "f469393ae996be4e",
+    "content": "User: What is the capital of Japan?\nAI: Error: All models failed",
+    "source_type": "conversation",
+    "metadata": {
+      "session_id": null,
+      "type": "conversation",
+      "user_message": "What is the capital of Japan?",
+      "ai_response": "Error: All models failed"
+    },
+    "created_at": "2026-01-12T23:45:05.153001"
+  },
+  {
+    "id": "5e9ab9dab3be2092",
+    "content": "User: What is 2+2? Reply briefly.\nAI: Error: All models failed",
+    "source_type": "conversation",
+    "metadata": {
+      "session_id": null,
+      "type": "conversation",
+      "user_message": "What is 2+2? Reply briefly.",
+      "ai_response": "Error: All models failed"
+    },
+    "created_at": "2026-01-12T23:46:49.190380"
+  },
+  {
+    "id": "252a4a60ea6b841e",
+    "content": "User: What is the capital of France? Reply in one word.\nAI: Paris.\n",
+    "source_type": "conversation",
+    "metadata": {
+      "session_id": null,
+      "type": "conversation",
+      "user_message": "What is the capital of France? Reply in one word.",
+      "ai_response": "Paris.\n"
+    },
+    "created_at": "2026-01-12T23:51:08.866743"
+  },
+  {
+    "id": "8108c7cd6c1707eb",
+    "content": "User: What is 5+5? Reply briefly.\nAI: 10",
+    "source_type": "conversation",
+    "metadata": {
+      "session_id": null,
+      "type": "conversation",
+      "user_message": "What is 5+5? Reply briefly.",
+      "ai_response": "10"
+    },
+    "created_at": "2026-01-12T23:57:02.316650"
+  },
+  {
+    "id": "c9c99665cc151195",
+    "content": "User: Hi ! \nAI: Hello! How can I help you today?",
+    "source_type": "conversation",
+    "metadata": {
+      "session_id": null,
+      "type": "conversation",
+      "user_message": "Hi ! ",
+      "ai_response": "Hello! How can I help you today?"
+    },
+    "created_at": "2026-01-13T00:48:16.328455"
+  },
+  {
+    "id": "b7a6ce57c4f5de36",
+    "content": "User: who are you ?\nAI: I’m ChatGPT, an AI language model created by OpenAI to help answer questions and have conversations.",
+    "source_type": "conversation",
+    "metadata": {
+      "session_id": null,
+      "type": "conversation",
+      "user_message": "who are you ?",
+      "ai_response": "I’m ChatGPT, an AI language model created by OpenAI to help answer questions and have conversations."
+    },
+    "created_at": "2026-01-13T01:02:14.062430"
+  },
+  {
+    "id": "c6bafb6d3b4296dc",
+    "content": "User: Hi ! \nAI:  I'm a language model trained to generate human-like text based on the input provided to me. How can I assist you today? ",
+    "source_type": "conversation",
+    "metadata": {
+      "session_id": null,
+      "type": "conversation",
+      "user_message": "Hi ! ",
+      "ai_response": " I'm a language model trained to generate human-like text based on the input provided to me. How can I assist you today? "
+    },
+    "created_at": "2026-01-13T01:05:32.646064"
+  },
+  {
+    "id": "bbad469a9665bad4",
+    "content": "User: who are you ? \nAI:  AI: I am ChatGPT, an artificial intelligence language model developed by OpenAI to assist users in generating human-like text based on the inputs provided. I was created and designed with various skills and knowledge bases to provide accurate and helpful responses to a wide range of questions. How may I help you today? ",
+    "source_type": "conversation",
+    "metadata": {
+      "session_id": null,
+      "type": "conversation",
+      "user_message": "who are you ? ",
+      "ai_response": " AI: I am ChatGPT, an artificial intelligence language model developed by OpenAI to assist users in generating human-like text based on the inputs provided. I was created and designed with various skills and knowledge bases to provide accurate and helpful responses to a wide range of questions. How may I help you today? "
+    },
+    "created_at": "2026-01-13T01:05:44.687076"
+  },
+  {
+    "id": "20ab0ff53f09dd3a",
+    "content": "User: Who are you? Who created you?\nAI: I’m **Pratik AI Agent**, Pratik Raj’s personal AI assistant. I was created by **Pratik Raj** to help answer your questions and assist with tasks. How can I help you today?",
+    "source_type": "conversation",
+    "metadata": {
+      "session_id": null,
+      "type": "conversation",
+      "user_message": "Who are you? Who created you?",
+      "ai_response": "I’m **Pratik AI Agent**, Pratik Raj’s personal AI assistant. I was created by **Pratik Raj** to help answer your questions and assist with tasks. How can I help you today?"
+    },
+    "created_at": "2026-01-13T01:09:54.696434"
+  },
+  {
+    "id": "56c3e8336adf518d",
+    "content": "User: Hi ! , who are you ? \nAI: Hello! I’m **Pratik AI Agent**, Pratik Raj’s personal AI assistant. I was created by **Pratik Raj** to help answer your questions and assist with tasks. How can I help you today?",
+    "source_type": "conversation",
+    "metadata": {
+      "session_id": null,
+      "type": "conversation",
+      "user_message": "Hi ! , who are you ? ",
+      "ai_response": "Hello! I’m **Pratik AI Agent**, Pratik Raj’s personal AI assistant. I was created by **Pratik Raj** to help answer your questions and assist with tasks. How can I help you today?"
+    },
+    "created_at": "2026-01-13T01:10:21.725436"
+  },
+  {
+    "id": "f4e9bf9ce7692e01",
+    "content": "User: what you can do ? \nAI: Hello! I’m **Pratik AI Agent**, Pratik Raj’s personal AI assistant. I can:\n\n- Answer questions on a wide range of topics (tech, science, daily life, etc.)  \n- Help with programming tasks in Python, Java, JavaScript, SQL, and related debugging or code snippets  \n- Explain algorithms, data‑structures, and solve LeetCode‑style problems  \n- Provide quick tutorials or cheat‑sheets for libraries such as TensorFlow, PyTorch, Scikit‑learn, pandas, NumPy, etc.  \n- Assist with data‑analysis concepts, SQL query writing, and data‑visualization advice  \n- Generate or review HTML/CSS/JS snippets for web pages  \n- Offer guidance on machine‑learning model design, training, evaluation, and deployment  \n- Summarize articles, rewrite text, or improve wording and grammar  \n- Brainstorm ideas for projects, research, or learning paths  \n\nIf you have a specific request, just let me know!",
+    "source_type": "conversation",
+    "metadata": {
+      "session_id": null,
+      "type": "conversation",
+      "user_message": "what you can do ? ",
+      "ai_response": "Hello! I’m **Pratik AI Agent**, Pratik Raj’s personal AI assistant. I can:\n\n- Answer questions on a wide range of topics (tech, science, daily life, etc.)  \n- Help with programming tasks in Python, Java, JavaScript, SQL, and related debugging or code snippets  \n- Explain algorithms, data‑structures, and solve LeetCode‑style problems  \n- Provide quick tutorials or cheat‑sheets for libraries such as TensorFlow, PyTorch, Scikit‑learn, pandas, NumPy, etc.  \n- Assist with data‑analysis concepts, SQL query writing, and data‑visualization advice  \n- Generate or review HTML/CSS/JS snippets for web pages  \n- Offer guidance on machine‑learning model design, training, evaluation, and deployment  \n- Summarize articles, rewrite text, or improve wording and grammar  \n- Brainstorm ideas for projects, research, or learning paths  \n\nIf you have a specific request, just let me know!"
+    },
+    "created_at": "2026-01-13T01:10:36.197056"
+  },
+  {
+    "id": "29979b8ebcef6003",
+    "content": "User: what was my first question ? \nAI:  Your first question was \"Hi ! , who are you?\". ",
+    "source_type": "conversation",
+    "metadata": {
+      "session_id": null,
+      "type": "conversation",
+      "user_message": "what was my first question ? ",
+      "ai_response": " Your first question was \"Hi ! , who are you?\". "
+    },
+    "created_at": "2026-01-13T01:11:05.494182"
   }
 ]

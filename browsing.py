@@ -1,6 +1,5 @@
 import asyncio
 from playwright.async_api import async_playwright
-import os
 from text import TextResponseHandler
 import base64
 from datetime import datetime
@@ -24,7 +23,6 @@ class WebBrowser:
         if path is None:
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             path = f"screenshot_{timestamp}.png"
-        
         await self.page.screenshot(path=path, full_page=True)
         return path
     
@@ -36,7 +34,7 @@ class WebBrowser:
             await self.page.goto(url, timeout=30000)
             await self.page.wait_for_load_state('networkidle')
             screenshot_path = await self.take_screenshot()
-            content = await self.page.content()
+            
             page_text = await self.page.evaluate('''() => {
                 Array.from(document.querySelectorAll('script, style, nav, footer')).forEach(el => el.remove());
                 return document.body.innerText;
@@ -54,7 +52,7 @@ class WebBrowser:
             Please analyze the webpage content and respond to the user's query based on the information found on the page.
             """
             
-            response = self.handler.get_response(prompt, use_local=True)
+            response = self.handler.get_response(prompt, use_local=False)
             
             with open(screenshot_path, "rb") as img_file:
                 screenshot_base64 = base64.b64encode(img_file.read()).decode('utf-8')
@@ -69,8 +67,7 @@ class WebBrowser:
         
         except Exception as e:
             error_msg = f"Error browsing {url}: {str(e)}"
-            error_prompt = f"The web browsing request failed with error: {error_msg}. Please inform the user about this issue."
-            response = self.handler.get_response(error_prompt, use_local=True)
+            response = self.handler.get_response(f"The web browsing request failed: {error_msg}", use_local=False)
             
             return {
                 "response": response,
@@ -80,4 +77,3 @@ class WebBrowser:
                 "page_text": None,
                 "error": error_msg
             }
-

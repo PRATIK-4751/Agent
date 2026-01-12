@@ -1,13 +1,11 @@
 from fastapi import FastAPI, HTTPException
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import Field, BaseModel
-import asyncio
 from browsing import WebBrowser
 from text import TextResponseHandler
 from supabase_rag import get_rag_context, add_conversation_to_rag
-import json
+import base64
+import tempfile
 import os
 
 app = FastAPI()
@@ -26,15 +24,15 @@ class BrowseRequest(BaseModel):
 
 class TextRequest(BaseModel):
     prompt: str = Field(..., description="Text prompt to analyze")
-    use_local: bool = Field(default=True, description="Whether to use local model")
-    context: list = Field(default=[], description="Chat context/history for RAG")
-    pdf_content: str = Field(default=None, description="PDF content to use as context")
+    use_local: bool = Field(default=False, description="Whether to use local model")
+    context: list = Field(default=[], description="Chat context/history")
+    pdf_content: str = Field(default=None, description="PDF content as context")
 
 class VisionRequest(BaseModel):
     image_data: str = Field(..., description="Base64 encoded image data")
     prompt: str = Field(..., description="Prompt for vision analysis")
-    use_local: bool = Field(default=True, description="Whether to use local model")
-    context: list = Field(default=[], description="Chat context/history for RAG")
+    use_local: bool = Field(default=False, description="Whether to use local model")
+    context: list = Field(default=[], description="Chat context/history")
 
 @app.post("/browse")
 async def browse_web(request: BrowseRequest):
@@ -43,52 +41,32 @@ async def browse_web(request: BrowseRequest):
         result = await browser.capture_and_process(request.url, request.query)
         return result
     except Exception as e:
-        error_detail = {
-            "error": str(e),
-            "url": request.url,
-            "query": request.query
-        }
-        raise HTTPException(status_code=500, detail=error_detail)
+        raise HTTPException(status_code=500, detail={"error": str(e), "url": request.url})
     finally:
         await browser.close_browser()
-
 
 @app.post("/text-analyze")
 async def text_analyze(request: TextRequest):
     try:
         handler = TextResponseHandler()
-        
-        
         rag_context = get_rag_context(request.prompt)
-        
         context_parts = []
         
         if rag_context:
             context_parts.append(f"Relevant Information from Knowledge Base:\n{rag_context}")
-        
         if request.pdf_content:
             context_parts.append(f"PDF Content:\n{request.pdf_content}")
-        
         if request.context:
             context_str = "\n".join([f"{msg['role']}: {msg['content']}" for msg in request.context])
             context_parts.append(f"Previous conversation:\n{context_str}")
         
         if context_parts:
-            combined_context = "\n\n".join(context_parts)
-            full_prompt = f"Context:\n{combined_context}\n\nUser: {request.prompt}"
+            full_prompt = f"Context:\n{chr(10).join(context_parts)}\n\nUser: {request.prompt}"
         else:
             full_prompt = request.prompt
             
         response = handler.get_response(full_prompt, use_local=request.use_local)
-        
-        if request.context and len(request.context) > 0:
-            for msg in request.context[-2:]:
-                if msg['role'] == 'user':
-                    continue
-        
-        last_user_msg = request.prompt
-        ai_response = response
-        add_conversation_to_rag(last_user_msg, ai_response)
+        add_conversation_to_rag(request.prompt, response)
         
         return {
             "response": response,
@@ -96,22 +74,14 @@ async def text_analyze(request: TextRequest):
             "model_used": "local" if request.use_local else "online"
         }
     except Exception as e:
-        error_detail = {
-            "error": str(e),
-            "prompt": request.prompt
-        }
-        raise HTTPException(status_code=500, detail=error_detail)
+        raise HTTPException(status_code=500, detail={"error": str(e), "prompt": request.prompt})
 
-# API endpoint for vision analysis
 @app.post("/vision-analyze")
 async def vision_analyze(request: VisionRequest):
     try:
         from vision import vision_to_text
-        import tempfile
-        import base64
         
         image_bytes = base64.b64decode(request.image_data)
-        
         with tempfile.NamedTemporaryFile(suffix='.png', delete=False) as temp_file:
             temp_file.write(image_bytes)
             temp_image_path = temp_file.name
@@ -122,14 +92,7 @@ async def vision_analyze(request: VisionRequest):
         else:
             full_prompt = request.prompt
         
-        result = vision_to_text(
-            temp_image_path, 
-            full_prompt, 
-            vision_local=request.use_local, 
-            text_local=request.use_local
-        )
-        
-        import os
+        result = vision_to_text(temp_image_path, full_prompt, vision_local=request.use_local, text_local=request.use_local)
         os.unlink(temp_image_path)
         
         return {
@@ -138,20 +101,11 @@ async def vision_analyze(request: VisionRequest):
             "model_used": "local" if request.use_local else "online"
         }
     except Exception as e:
-        error_detail = {
-            "error": str(e),
-            "prompt": request.prompt
-        }
-        raise HTTPException(status_code=500, detail=error_detail)
+        raise HTTPException(status_code=500, detail={"error": str(e), "prompt": request.prompt})
 
 @app.get("/")
 async def root():
-    try:
-        with open("index.html", "r", encoding="utf-8") as f:
-            html_content = f.read()
-        return HTMLResponse(content=html_content)
-    except FileNotFoundError:
-        return HTMLResponse(content="<h1>Page not found</h1>", status_code=404)
+    return {"status": "ok", "service": "AI Agent API", "endpoints": ["/browse", "/text-analyze", "/vision-analyze"]}
 
 @app.get("/health")
 async def health_check():
@@ -159,6 +113,5 @@ async def health_check():
 
 if __name__ == "__main__":
     import uvicorn
-    import os
     port = int(os.environ.get("PORT", 8000))
     uvicorn.run(app, host="0.0.0.0", port=port)
