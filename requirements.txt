@@ -8,8 +8,9 @@ duckduckgo-search==6.3.5
 sentence-transformers==3.3.0
 aiofiles==24.1.0
 python-multipart==0.0.20
-ollama==0.3.6
-aiohttp==3.11.11
-pillow==11.0.0
-streamlit==1.32.2
-PyPDF2==3.0.1
+ollama
+aiohttp
+pillow
+streamlit
+PyPDF2
+supabase==2.9.0

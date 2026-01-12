@@ -6,14 +6,12 @@ from pydantic import Field, BaseModel
 import asyncio
 from browsing import WebBrowser
 from text import TextResponseHandler
-from rag_storage import rag_storage, get_rag_context, add_conversation_to_rag
+from supabase_rag import get_rag_context, add_conversation_to_rag
 import json
 import os
 
-# Create FastAPI app with a specific route for static files
 app = FastAPI()
 
-# Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -22,7 +20,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Define request models
 class BrowseRequest(BaseModel):
     url: str = Field(..., description="URL to browse")
     query: str = Field(..., description="User's question about the page")
@@ -39,7 +36,6 @@ class VisionRequest(BaseModel):
     use_local: bool = Field(default=True, description="Whether to use local model")
     context: list = Field(default=[], description="Chat context/history for RAG")
 
-# API endpoint for browsing
 @app.post("/browse")
 async def browse_web(request: BrowseRequest):
     browser = WebBrowser()
@@ -63,26 +59,20 @@ async def text_analyze(request: TextRequest):
         handler = TextResponseHandler()
         
         
-        # First, get any relevant context from RAG storage based on the current prompt
         rag_context = get_rag_context(request.prompt)
         
-        # Build the full prompt with various context sources
         context_parts = []
         
-        # Add RAG retrieved context if available
         if rag_context:
             context_parts.append(f"Relevant Information from Knowledge Base:\n{rag_context}")
         
-        # Add PDF content as context if provided
         if request.pdf_content:
             context_parts.append(f"PDF Content:\n{request.pdf_content}")
         
-        # Add conversation history as context
         if request.context:
             context_str = "\n".join([f"{msg['role']}: {msg['content']}" for msg in request.context])
             context_parts.append(f"Previous conversation:\n{context_str}")
         
-        # Combine all context parts
         if context_parts:
             combined_context = "\n\n".join(context_parts)
             full_prompt = f"Context:\n{combined_context}\n\nUser: {request.prompt}"
@@ -91,15 +81,11 @@ async def text_analyze(request: TextRequest):
             
         response = handler.get_response(full_prompt, use_local=request.use_local)
         
-        # Store the conversation in RAG storage for future retrieval
         if request.context and len(request.context) > 0:
-            # Add the last few exchanges to RAG for context
-            for msg in request.context[-2:]:  # Store last 2 exchanges
+            for msg in request.context[-2:]:
                 if msg['role'] == 'user':
-                    # We'll add this when we have the AI response
                     continue
         
-        # Add the current exchange to RAG storage
         last_user_msg = request.prompt
         ai_response = response
         add_conversation_to_rag(last_user_msg, ai_response)
@@ -120,27 +106,22 @@ async def text_analyze(request: TextRequest):
 @app.post("/vision-analyze")
 async def vision_analyze(request: VisionRequest):
     try:
-        # Import here to avoid circular imports
         from vision import vision_to_text
         import tempfile
         import base64
         
-        # Decode the base64 image data
         image_bytes = base64.b64decode(request.image_data)
         
-        # Create a temporary file
         with tempfile.NamedTemporaryFile(suffix='.png', delete=False) as temp_file:
             temp_file.write(image_bytes)
             temp_image_path = temp_file.name
         
-        # Build context-aware prompt if context is provided
         if request.context:
             context_str = "\n".join([f"{msg['role']}: {msg['content']}" for msg in request.context])
             full_prompt = f"Context:\n{context_str}\n\nUser: {request.prompt}"
         else:
             full_prompt = request.prompt
         
-        # Perform vision analysis
         result = vision_to_text(
             temp_image_path, 
             full_prompt, 
@@ -148,7 +129,6 @@ async def vision_analyze(request: VisionRequest):
             text_local=request.use_local
         )
         
-        # Clean up the temporary file
         import os
         os.unlink(temp_image_path)
         
@@ -164,7 +144,6 @@ async def vision_analyze(request: VisionRequest):
         }
         raise HTTPException(status_code=500, detail=error_detail)
 
-# Serve the main page
 @app.get("/")
 async def root():
     try:
@@ -174,7 +153,6 @@ async def root():
     except FileNotFoundError:
         return HTMLResponse(content="<h1>Page not found</h1>", status_code=404)
 
-# Health check endpoint
 @app.get("/health")
 async def health_check():
     return {"status": "ok", "service": "browser-api"}

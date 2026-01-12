@@ -5,14 +5,12 @@ from io import BytesIO
 from PIL import Image
 import os
 
-# Set classic dark theme
 st.set_page_config(
     page_title="AI Web Browser",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# Custom CSS for dark theme with responsive ASCII art
 st.markdown("""
 <style>
     .stApp {
@@ -163,7 +161,6 @@ st.markdown(f'''
 </div>
 ''', unsafe_allow_html=True)
 
-# Sidebar for navigation
 st.sidebar.header("Navigation")
 app_mode = st.sidebar.selectbox("Choose Mode", ["Web Browser", "Text Analysis", "Vision Analysis"])
 
@@ -180,7 +177,6 @@ if 'vision_chat_history' not in st.session_state:
 if app_mode == "Web Browser":
     st.subheader(" Web Browser AI Assistant")
     
-    # Input section
     col1, col2 = st.columns([3, 1])
     with col1:
         url = st.text_input("Enter URL to browse:", placeholder="https://example.com", key="url_input")
@@ -191,10 +187,8 @@ if app_mode == "Web Browser":
         if url and query:
             with st.spinner(" Browsing website and analyzing content..."):
                 try:
-                    # Send request to FastAPI server
-                    # Use environment variable for API base URL, default to local
                     import os
-                    api_base_url = os.getenv("API_BASE_URL", "http://127.0.0.1:8001")
+                    api_base_url = os.getenv("API_BASE_URL", "https://pratik-agent.onrender.com")
                     response = requests.post(
                         f"{api_base_url}/browse",
                         json={"url": url, "query": query},
@@ -204,7 +198,6 @@ if app_mode == "Web Browser":
                     if response.status_code == 200:
                         result = response.json()
                         
-                        # Add to conversation
                         st.session_state.conversation.append({
                             "url": url,
                             "query": query,
@@ -248,7 +241,6 @@ if app_mode == "Web Browser":
 elif app_mode == "Text Analysis":
     st.subheader("Text Analysis Chat")
     
-    # PDF upload functionality
     uploaded_pdf = st.file_uploader("Upload a PDF for context", type=["pdf"], key="pdf_uploader")
     pdf_content = None
     
@@ -269,7 +261,6 @@ elif app_mode == "Text Analysis":
             else:
                 st.markdown(f'<div class="chat-message-assistant"><strong>🤖 AI:</strong> {message["content"]}</div>', unsafe_allow_html=True)
     
-    # Chat input
     with st.form(key='text_chat_form', clear_on_submit=True):
         col1, col2 = st.columns([4, 1])
         with col1:
@@ -285,22 +276,18 @@ elif app_mode == "Text Analysis":
             
             with st.spinner("Thinking..."):
                 try:
-                    # Prepare the payload
                     payload = {
                         "prompt": user_input,
                         "use_local": text_mode.lower() == "local",
                         "context": st.session_state.text_chat_history
                     }
                     
-                    # Add PDF content if available
                     if pdf_content:
                         payload["pdf_content"] = pdf_content
                     
-                    # Use environment variable for API base URL, default to local
                     import os
-                    api_base_url = os.getenv("API_BASE_URL", "http://127.0.0.1:8001")
+                    api_base_url = os.getenv("API_BASE_URL", "https://pratik-agent.onrender.com")
                     
-                    # Call the text model API with chat history as context
                     response = requests.post(
                         f"{api_base_url}/text-analyze",
                         json=payload,
@@ -351,7 +338,6 @@ elif app_mode == "Vision Analysis":
             submit_button = st.form_submit_button("Send 📤")
             
             if submit_button and vision_query:
-                # Add user message to chat (without image for now)
                 st.session_state.vision_chat_history.append({'role': 'user', 'content': f"[Image uploaded] {vision_query}"})
                 
                 with st.spinner("👀 Analyzing image..."):
@@ -361,11 +347,9 @@ elif app_mode == "Vision Analysis":
                         image.save(buffered, format="PNG")
                         img_str = base64.b64encode(buffered.getvalue()).decode()
                         
-                        # Use environment variable for API base URL, default to local
                         import os
-                        api_base_url = os.getenv("API_BASE_URL", "http://127.0.0.1:8001")
+                        api_base_url = os.getenv("API_BASE_URL", "https://pratik-agent.onrender.com")
                         
-                        # Call the vision analysis API with chat history as context
                         response = requests.post(
                             f"{api_base_url}/vision-analyze",
                             json={
@@ -392,7 +376,6 @@ elif app_mode == "Vision Analysis":
                     except Exception as e:
                         st.error(f"❌ Error in vision analysis: {str(e)}")
 
-# Instructions
 with st.expander("ℹ️ Instructions"):
     st.write("""
     **Web Browser Mode:**

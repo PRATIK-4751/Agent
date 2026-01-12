@@ -81,14 +81,3 @@ class WebBrowser:
                 "error": error_msg
             }
 
-async def main():
-    browser = WebBrowser()
-    try:
-        result = await browser.capture_and_process("https://www.python.org", "What is Python?")
-        print("Response:", result["response"])
-        print("Screenshot saved to:", result["screenshot_path"])
-    finally:
-        await browser.close_browser()
-
-if __name__ == "__main__":
-    asyncio.run(main())

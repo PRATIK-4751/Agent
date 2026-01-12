@@ -1,6 +1,4 @@
-"""
-Simple RAG Storage System using local JSON file to mimic Supabase functionality
-"""
+
 import json
 import os
 import hashlib
@@ -9,18 +7,13 @@ from typing import List, Dict, Optional
 
 
 class SimpleRAGStorage:
-    """
-    A simple RAG (Retrieval Augmented Generation) storage system that uses local JSON files
-    to store and retrieve contextual information for AI conversations.
-    This serves as a local alternative to Supabase RAG functionality.
-    """
     
     def __init__(self, storage_file: str = "rag_storage.json"):
         self.storage_file = storage_file
         self.data = self.load_data()
     
     def load_data(self) -> List[Dict]:
-        """Load data from the storage file"""
+        
         if os.path.exists(self.storage_file):
             try:
                 with open(self.storage_file, 'r', encoding='utf-8') as f:
@@ -30,12 +23,12 @@ class SimpleRAGStorage:
         return []
     
     def save_data(self):
-        """Save data to the storage file"""
+        
         with open(self.storage_file, 'w', encoding='utf-8') as f:
             json.dump(self.data, f, indent=2, ensure_ascii=False)
     
     def add_context(self, content: str, source_type: str = "general", metadata: Dict = None) -> str:
-        """Add content as context to the RAG storage"""
+        
         if not metadata:
             metadata = {}
         
@@ -61,7 +54,7 @@ class SimpleRAGStorage:
         return content_hash
     
     def search_context(self, query: str, top_k: int = 5) -> List[Dict]:
-        """Search for relevant context based on the query"""
+        
         if not query:
             return []
         
@@ -83,16 +76,16 @@ class SimpleRAGStorage:
         return [entry for entry, score in scored_entries[:top_k]]
     
     def get_all_context(self) -> List[Dict]:
-        """Get all stored context"""
+        
         return self.data[:]
     
     def clear_context(self):
-        """Clear all stored context"""
+        
         self.data = []
         self.save_data()
     
     def add_conversation_context(self, user_message: str, ai_response: str, session_id: str = None):
-        """Add a conversation turn as context"""
+        
         content = f"User: {user_message}\nAI: {ai_response}"
         metadata = {
             "session_id": session_id,
@@ -104,7 +97,7 @@ class SimpleRAGStorage:
         return self.add_context(content, "conversation", metadata)
     
     def add_document_context(self, document_content: str, doc_name: str = None):
-        """Add document content as context"""
+        
         metadata = {
             "doc_name": doc_name,
             "type": "document"
@@ -113,7 +106,7 @@ class SimpleRAGStorage:
         return self.add_context(document_content, "document", metadata)
     
     def get_relevant_context_for_query(self, query: str, max_length: int = 2000) -> str:
-        """Get relevant context for a query, with length limiting"""
+        
         relevant_entries = self.search_context(query, top_k=10)
         
         if not relevant_entries:
@@ -132,12 +125,11 @@ class SimpleRAGStorage:
         return combined_context.strip()
 
 
-# Global instance for easy access
 rag_storage = SimpleRAGStorage()
 
 
 def get_rag_context(query: str = "") -> str:
-    """Get relevant context from RAG storage for a given query"""
+    
     if query:
         return rag_storage.get_relevant_context_for_query(query)
     else:
@@ -151,32 +143,17 @@ def get_rag_context(query: str = "") -> str:
 
 
 def add_to_rag(content: str, source_type: str = "general", metadata: Dict = None) -> str:
-    """Add content to RAG storage"""
+    
     return rag_storage.add_context(content, source_type, metadata)
 
 
 def add_conversation_to_rag(user_message: str, ai_response: str, session_id: str = None) -> str:
-    """Add a conversation turn to RAG storage"""
+    
     return rag_storage.add_conversation_context(user_message, ai_response, session_id)
 
 
 def add_document_to_rag(document_content: str, doc_name: str = None) -> str:
-    """Add document content to RAG storage"""
+    
     return rag_storage.add_document_context(document_content, doc_name)
 
 
-if __name__ == "__main__":
-    # Example usage
-    print("Testing RAG storage...")
-    
-    # Add some sample content
-    sample_content = "Machine learning is a subset of artificial intelligence that focuses on algorithms that can learn from data."
-    add_to_rag(sample_content, "knowledge_base", {"topic": "ML"})
-    
-    # Search for relevant context
-    query = "artificial intelligence"
-    context = get_rag_context(query)
-    print(f"Query: {query}")
-    print(f"Relevant context: {context}")
-    
-    print("\nRAG storage initialized successfully!")

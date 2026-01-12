@@ -153,37 +153,3 @@ def vision_to_text(image_path, prompt, vision_local=True, text_local=True):
     except Exception as e:
         return f"Text processing error: {str(e)}, Vision result: {vision_result}"
 
-if __name__ == "__main__":
-    print("Image Analysis Tool")
-    print("==================")
-    
-    image_path = "picture.jpg"
-    if not os.path.exists(image_path):
-        image_path = input("Enter image path: ")
-    
-    while True:
-        print("\n1. Local (moondream:1.8b)")
-        print("2. Online (google/gemma-3-27b-it:free)")
-        print("3. Vision-to-Text (Local vision + Local text)")
-        print("4. Vision-to-Text (Online vision + Online text)")
-        
-        choice = input("Choose mode (1-4): ").strip()
-        prompt = input("Enter your request: ")
-        
-        if choice == "1":
-            result = analyze_local(image_path, prompt)
-        elif choice == "2":
-            result = analyze_online(image_path, prompt)
-        elif choice == "3":
-            result = vision_to_text(image_path, prompt, vision_local=True, text_local=True)
-        elif choice == "4":
-            result = vision_to_text(image_path, prompt, vision_local=False, text_local=False)
-        else:
-            print("Invalid choice")
-            continue
-        
-        print(f"Result: {result}")
-        
-        cont = input("Continue? (y/n): ").lower()
-        if cont != 'y':
-            break

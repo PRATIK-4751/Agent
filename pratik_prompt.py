@@ -1,9 +1,4 @@
-"""
-Pratik Raj - AI/ML Engineer & Data Science Student
-Profile Summary for AI Assistant Context
-"""
 
-# Personal Profile (excluding personal contact details)
 class PratikProfile:
     def __init__(self):
         self.name = "Pratik Raj(プラティク・ラージ)"
@@ -144,15 +139,5 @@ Certifications:
 # Create instance of Pratik's profile
 pratik_profile = PratikProfile()
 
-# Define a function to get Pratik's profile information for AI context
 def get_pratik_context():
-    """
-    Returns Pratik's professional profile information for use as context in AI conversations.
-    This provides background information about Pratik's skills, projects, and expertise.
-    """
     return pratik_profile.get_profile_summary()
-
-
-# If this file is run directly, print the profile summary
-if __name__ == "__main__":
-    print(get_pratik_context())
