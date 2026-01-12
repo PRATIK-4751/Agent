@@ -59,7 +59,17 @@ class TextResponseHandler:
     
     def get_response_online(self, prompt: str, model: str = "google/gemma-3-27b-it:free") -> str:
         if not self.openrouter_api_key:
-            return "OpenRouter API key not configured in environment."
+            # Fallback to a local model if online API key is not available
+            try:
+                if OLLAMA_AVAILABLE:
+                    response = ollama.chat(model="llava:7b", messages=[{"role": "user", "content": prompt}])
+                    response_text = response['message']['content']
+                    self.add_message_to_context("assistant", response_text)
+                    return response_text
+                else:
+                    return "API key not configured and Ollama not available. Please configure environment variables."
+            except Exception as e:
+                return f"API key not configured and fallback failed: {str(e)}"
         
         try:
             self.add_message_to_context("user", prompt)

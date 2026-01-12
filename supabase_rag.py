@@ -11,9 +11,10 @@ class SupabaseRAGStorage:
     
     def __init__(self):
         url = os.getenv("SUPABASE_URL")
-        key = os.getenv("SUPABASE_KEY")
+        key = os.getenv("SUPABASE_ANON_KEY") or os.getenv("SUPABASE_KEY")
         if not url or not key:
-            raise ValueError("SUPABASE_URL and SUPABASE_KEY must be set in environment variables")
+            print("Warning: Supabase credentials not configured, using local storage only")
+            raise ValueError("SUPABASE_URL and SUPABASE_ANON_KEY must be set in environment variables")
         
         self.supabase: Client = create_client(url, key)
         self.table_name = "rag_context"
@@ -128,6 +129,11 @@ try:
 except ValueError:
     # If Supabase credentials aren't available, use local storage only
     supabase_rag = None
+    print("Supabase not configured, using local RAG storage")
+except Exception as e:
+    # Handle any other Supabase-related errors
+    supabase_rag = None
+    print(f"Supabase error: {e}, using local RAG storage")
 
 def get_rag_context(query: str = "") -> str:
     """Get relevant context from RAG storage for a given query"""

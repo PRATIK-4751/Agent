@@ -43,7 +43,11 @@ def analyze_local(image_path, prompt):
 
 def analyze_online(image_path, prompt):
     if not openrouter_api_key:
-        return "OpenRouter API key not configured."
+        # Fallback to local processing if online API key is not available
+        if OLLAMA_AVAILABLE:
+            return analyze_local(image_path, f"Describe this image in detail: {prompt}")
+        else:
+            return "OpenRouter API key not configured and Ollama not available. Please configure environment variables."
     
     try:
         with open(image_path, "rb") as image_file:
