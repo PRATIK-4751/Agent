@@ -1,141 +1,186 @@
-from fastapi import FastAPI, UploadFile, Form
+from fastapi import FastAPI, HTTPException
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
-import tempfile, os
-from datetime import datetime
-import uuid
+from pydantic import Field, BaseModel
+import asyncio
+from browsing import WebBrowser
+from text import TextResponseHandler
+from rag_storage import rag_storage, get_rag_context, add_conversation_to_rag
+import json
+import os
 
-from app import ask
-from browser import search_web
-from memory import retrieve_memories, store_memory, count_memories
-from decider import memory_decider
-from session import save_message, get_session_history
-
+# Create FastAPI app with a specific route for static files
 app = FastAPI()
 
+# Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-SYSTEM_PROMPT = "You are a helpful AI assistant with long-term memory. You have access to web search functionality. When users ask you to search for information, provide details from the search results included in the prompt. Be concise and cite sources when referencing search results. If search results are provided, use them to enhance your answers but also share the source information with the user."
-PROVIDER = "local"
+# Define request models
+class BrowseRequest(BaseModel):
+    url: str = Field(..., description="URL to browse")
+    query: str = Field(..., description="User's question about the page")
 
-@app.post("/chat")
-async def chat(
-    message: str = Form(...),
-    session_id: str = Form(...),
-    image: UploadFile | None = None
-):
-    image_path = None
+class TextRequest(BaseModel):
+    prompt: str = Field(..., description="Text prompt to analyze")
+    use_local: bool = Field(default=True, description="Whether to use local model")
+    context: list = Field(default=[], description="Chat context/history for RAG")
+    pdf_content: str = Field(default=None, description="PDF content to use as context")
 
-    if image:
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".jpg") as f:
-            f.write(await image.read())
-            image_path = f.name
+class VisionRequest(BaseModel):
+    image_data: str = Field(..., description="Base64 encoded image data")
+    prompt: str = Field(..., description="Prompt for vision analysis")
+    use_local: bool = Field(default=True, description="Whether to use local model")
+    context: list = Field(default=[], description="Chat context/history for RAG")
 
-    conversation_history = get_session_history(session_id, limit=6)
-
-    query_context = message
-    if conversation_history:
-        recent = " ".join([msg['content'] for msg in conversation_history[-4:]])
-        query_context = f"{recent} {message}"
-
-    memories = retrieve_memories(query_context, top_k=5)
-    
-    filtered_memories = []
-    seen_content = set()
-    
-    for m in memories:
-        if m.get('similarity', 0) < 0.6:
-            continue
-        
-        content_lower = m['content'].lower()
-        if content_lower not in seen_content:
-            filtered_memories.append(m)
-            seen_content.add(content_lower)
-
-    # Build memory context
-    memory_context = ""
-    if filtered_memories:
-        lines = ["[Relevant context from your memory]:"]
-        for i, m in enumerate(filtered_memories[:3], 1):
-            lines.append(f"{i}. {m['content']}")
-        memory_context = "\n".join(lines) + "\n\n"
-
-    final_prompt = memory_context + message
-
-    response = ask(
-        PROVIDER,
-        SYSTEM_PROMPT,
-        final_prompt,
-        image_path=image_path
-    )
-
-    save_message(session_id, "user", message, image_path)
-    save_message(session_id, "assistant", response)
-
-    decision = memory_decider(
-        ask,
-        PROVIDER,
-        SYSTEM_PROMPT,
-        message,
-        response,
-        image_included=image_path is not None,
-        conversation_history=[(msg['role'], msg['content']) for msg in conversation_history[-6:]]
-    )
-
-    memory_stored = None
-    if decision:
-        store_memory(
-            content=decision["content"],
-            mem_type=decision["mem_type"],
-            importance=decision["importance"],
-            metadata={
-                "timestamp": datetime.now().isoformat(),
-                "has_image": image_path is not None,
-                "session_id": session_id
-            }
-        )
-        memory_stored = decision["content"]
-
-    if image_path:
-        os.remove(image_path)
-
-    return {
-        "response": str(response),
-        "memories_used": [m['content'] for m in filtered_memories[:3]],
-        "memory_stored": memory_stored
-    }
-
-@app.get("/memory-count")
-async def get_memory_count():
-    count = count_memories()
-    return {"count": count}
-
-@app.get("/session/{session_id}/history")
-async def get_history(session_id: str):
-    history = get_session_history(session_id)
-    return {"history": history}
-
-@app.post("/web-search")
-async def web_search(query: str = Form(...)):
+# API endpoint for browsing
+@app.post("/browse")
+async def browse_web(request: BrowseRequest):
+    browser = WebBrowser()
     try:
-        search_results = search_web(query, max_results=5)
+        result = await browser.capture_and_process(request.url, request.query)
+        return result
+    except Exception as e:
+        error_detail = {
+            "error": str(e),
+            "url": request.url,
+            "query": request.query
+        }
+        raise HTTPException(status_code=500, detail=error_detail)
+    finally:
+        await browser.close_browser()
+
+
+@app.post("/text-analyze")
+async def text_analyze(request: TextRequest):
+    try:
+        handler = TextResponseHandler()
         
-        formatted_results = []
-        for result in search_results:
-            formatted_results.append({
-                "title": result["title"],
-                "url": result["url"],
-                "snippet": result["snippet"]
-            })
+        
+        # First, get any relevant context from RAG storage based on the current prompt
+        rag_context = get_rag_context(request.prompt)
+        
+        # Build the full prompt with various context sources
+        context_parts = []
+        
+        # Add RAG retrieved context if available
+        if rag_context:
+            context_parts.append(f"Relevant Information from Knowledge Base:\n{rag_context}")
+        
+        # Add PDF content as context if provided
+        if request.pdf_content:
+            context_parts.append(f"PDF Content:\n{request.pdf_content}")
+        
+        # Add conversation history as context
+        if request.context:
+            context_str = "\n".join([f"{msg['role']}: {msg['content']}" for msg in request.context])
+            context_parts.append(f"Previous conversation:\n{context_str}")
+        
+        # Combine all context parts
+        if context_parts:
+            combined_context = "\n\n".join(context_parts)
+            full_prompt = f"Context:\n{combined_context}\n\nUser: {request.prompt}"
+        else:
+            full_prompt = request.prompt
+            
+        response = handler.get_response(full_prompt, use_local=request.use_local)
+        
+        # Store the conversation in RAG storage for future retrieval
+        if request.context and len(request.context) > 0:
+            # Add the last few exchanges to RAG for context
+            for msg in request.context[-2:]:  # Store last 2 exchanges
+                if msg['role'] == 'user':
+                    # We'll add this when we have the AI response
+                    continue
+        
+        # Add the current exchange to RAG storage
+        last_user_msg = request.prompt
+        ai_response = response
+        add_conversation_to_rag(last_user_msg, ai_response)
         
         return {
-            "query": query,
-            "results": formatted_results,
-            "count": len(formatted_results)
+            "response": response,
+            "prompt": request.prompt,
+            "model_used": "local" if request.use_local else "online"
         }
     except Exception as e:
-        return {"error": str(e), "results": [], "count": 0}
+        error_detail = {
+            "error": str(e),
+            "prompt": request.prompt
+        }
+        raise HTTPException(status_code=500, detail=error_detail)
+
+# API endpoint for vision analysis
+@app.post("/vision-analyze")
+async def vision_analyze(request: VisionRequest):
+    try:
+        # Import here to avoid circular imports
+        from vision import vision_to_text
+        import tempfile
+        import base64
+        
+        # Decode the base64 image data
+        image_bytes = base64.b64decode(request.image_data)
+        
+        # Create a temporary file
+        with tempfile.NamedTemporaryFile(suffix='.png', delete=False) as temp_file:
+            temp_file.write(image_bytes)
+            temp_image_path = temp_file.name
+        
+        # Build context-aware prompt if context is provided
+        if request.context:
+            context_str = "\n".join([f"{msg['role']}: {msg['content']}" for msg in request.context])
+            full_prompt = f"Context:\n{context_str}\n\nUser: {request.prompt}"
+        else:
+            full_prompt = request.prompt
+        
+        # Perform vision analysis
+        result = vision_to_text(
+            temp_image_path, 
+            full_prompt, 
+            vision_local=request.use_local, 
+            text_local=request.use_local
+        )
+        
+        # Clean up the temporary file
+        import os
+        os.unlink(temp_image_path)
+        
+        return {
+            "response": result,
+            "prompt": request.prompt,
+            "model_used": "local" if request.use_local else "online"
+        }
+    except Exception as e:
+        error_detail = {
+            "error": str(e),
+            "prompt": request.prompt
+        }
+        raise HTTPException(status_code=500, detail=error_detail)
+
+# Serve the main page
+@app.get("/")
+async def root():
+    try:
+        with open("index.html", "r", encoding="utf-8") as f:
+            html_content = f.read()
+        return HTMLResponse(content=html_content)
+    except FileNotFoundError:
+        return HTMLResponse(content="<h1>Page not found</h1>", status_code=404)
+
+# Health check endpoint
+@app.get("/health")
+async def health_check():
+    return {"status": "ok", "service": "browser-api"}
+
+if __name__ == "__main__":
+    import uvicorn
+    import os
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run(app, host="0.0.0.0", port=port)

@@ -1,0 +1,36 @@
+[
+  {
+    "id": "a75acfdb14c99b73",
+    "content": "User: Hello, how are you?\nAI:  I'm just a computer program, so I don't have feelings or the ability to feel anything. I exist purely to assist users with their questions and tasks. Is there something specific you would like to know or discuss? ",
+    "source_type": "conversation",
+    "metadata": {
+      "session_id": null,
+      "type": "conversation_turn",
+      "user_message": "Hello, how are you?",
+      "ai_response": " I'm just a computer program, so I don't have feelings or the ability to feel anything. I exist purely to assist users with their questions and tasks. Is there something specific you would like to know or discuss? "
+    },
+    "timestamp": "2026-01-12T19:24:38.184105",
+    "created_at": "2026-01-12T19:24:38.184452"
+  },
+  {
+    "id": "ffca5e905ce3c80f",
+    "content": "Test context for Pratik",
+    "source_type": "test",
+    "metadata": {},
+    "timestamp": "2026-01-12T19:25:03.066733",
+    "created_at": "2026-01-12T19:25:03.066754"
+  },
+  {
+    "id": "a32556d25a6ddc83",
+    "content": "User: Hi ! \nAI: AI: Hello! Is there anything I can help you with today? I'm here to answer your questions or assist with tasks.",
+    "source_type": "conversation",
+    "metadata": {
+      "session_id": null,
+      "type": "conversation_turn",
+      "user_message": "Hi ! ",
+      "ai_response": "AI: Hello! Is there anything I can help you with today? I'm here to answer your questions or assist with tasks."
+    },
+    "timestamp": "2026-01-12T19:29:28.505851",
+    "created_at": "2026-01-12T19:29:28.505867"
+  }
+]
