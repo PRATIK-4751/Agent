@@ -188,7 +188,7 @@ if app_mode == "Web Browser":
             with st.spinner(" Browsing website and analyzing content..."):
                 try:
                     import os
-                    api_base_url = os.getenv("API_BASE_URL", "https://pratik-agent.onrender.com")
+                    api_base_url = os.getenv("API_BASE_URL", "http://127.0.0.1:8000")
                     response = requests.post(
                         f"{api_base_url}/browse",
                         json={"url": url, "query": query},
@@ -286,7 +286,7 @@ elif app_mode == "Text Analysis":
                         payload["pdf_content"] = pdf_content
                     
                     import os
-                    api_base_url = os.getenv("API_BASE_URL", "https://pratik-agent.onrender.com")
+                    api_base_url = os.getenv("API_BASE_URL", "http://127.0.0.1:8000")
                     
                     response = requests.post(
                         f"{api_base_url}/text-analyze",
@@ -348,7 +348,7 @@ elif app_mode == "Vision Analysis":
                         img_str = base64.b64encode(buffered.getvalue()).decode()
                         
                         import os
-                        api_base_url = os.getenv("API_BASE_URL", "https://pratik-agent.onrender.com")
+                        api_base_url = os.getenv("API_BASE_URL", "http://127.0.0.1:8000")
                         
                         response = requests.post(
                             f"{api_base_url}/vision-analyze",
