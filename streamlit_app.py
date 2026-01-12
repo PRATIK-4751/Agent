@@ -386,6 +386,7 @@ with st.expander("ℹ️ Instructions"):
 
     For deployment (Render/Docker):
     - Set environment variable API_BASE_URL to point to your backend server
+    - Configure API keys (OPENROUTER_API_KEY, etc.) in your backend server environment
 
     **Text Analysis Mode:**
     1. Select whether to use Local or Online models
