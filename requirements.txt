@@ -13,4 +13,4 @@ aiohttp
 pillow
 streamlit
 PyPDF2
-supabase==2.9.0
+supabase
