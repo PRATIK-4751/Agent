@@ -27,7 +27,7 @@
 
 ## Overview
 
-A powerful multi-modal AI assistant combining advanced language models with vision analysis and web browsing. Toggle between online, cloud, and local AI models for comprehensive intelligent assistance.
+A powerful multi-modal AI assistant combining advanced language models with vision analysis and web browsing. Toggle between online, cloud, and local AI models for comprehensive intelligent assistance.(still incomplete  , agentic features not added yet )
 
 ```
 ┌──────────────────┬────────────────────────────────────┐
