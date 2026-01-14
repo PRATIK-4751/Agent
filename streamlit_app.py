@@ -136,7 +136,7 @@ if mode == "Text":
         st.markdown(f'<div class="{c}">{i} {m["content"]}</div>', unsafe_allow_html=True)
     
     with st.form("tf", clear_on_submit=True):
-        inp = st.text_input("", placeholder="Ask anything...", label_visibility="collapsed")
+        inp = st.text_input("Message", placeholder="Ask anything...", label_visibility="collapsed")
         if st.form_submit_button("Send >>") and inp:
             st.session_state.text_h.append({'role': 'user', 'content': inp})
             with st.spinner("[...]"):
@@ -170,7 +170,7 @@ elif mode == "Vision":
         st.image(img, use_container_width=True)
         
         with st.form("vf", clear_on_submit=True):
-            q = st.text_input("", placeholder="Ask about image...", label_visibility="collapsed")
+            q = st.text_input("Question", placeholder="Ask about image...", label_visibility="collapsed")
             if st.form_submit_button("Analyze >>") and q:
                 st.session_state.vision_h.append({'role': 'user', 'content': f"[IMG] {q}"})
                 with st.spinner("[...]"):
@@ -198,8 +198,8 @@ elif mode == "Browse":
             except: pass
     
     with st.form("bf", clear_on_submit=True):
-        url = st.text_input("", placeholder="https://example.com", label_visibility="collapsed")
-        q = st.text_input("", placeholder="What to know?", label_visibility="collapsed", key="bq")
+        url = st.text_input("URL", placeholder="https://example.com", label_visibility="collapsed")
+        q = st.text_input("Query", placeholder="What to know?", label_visibility="collapsed", key="bq")
         if st.form_submit_button("Browse >>") and url and q:
             with st.spinner("[...]"):
                 try:

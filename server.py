@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import Field, BaseModel
 from browsing import WebBrowser
 from text import TextResponseHandler
-from supabase_rag import get_rag_context, add_conversation_to_rag
+from rag_storage import get_rag_context, add_conversation_to_rag
 import base64
 import tempfile
 import os
