@@ -2,12 +2,11 @@
 
 ```
    █████╗ ██╗     █████╗  ██████╗ ███████╗███╗   ██╗████████╗
-██╔══██╗██║    ██╔══██╗██╔════╝ ██╔════╝████╗  ██║╚══██╔══╝
-███████║██║    ███████║██║  ███╗█████╗  ██╔██╗ ██║   ██║   
-██╔══██║██║    ██╔══██║██║   ██║██╔══╝  ██║╚██╗██║   ██║   
-██║  ██║██║    ██║  ██║╚██████╔╝███████╗██║ ╚████║   ██║   
-╚═╝  ╚═╝╚═╝    ╚═╝  ╚═╝ ╚═════╝ ╚══════╝╚═╝  ╚═══╝   ╚═╝
- 
+  ██╔══██╗██║    ██╔══██╗██╔════╝ ██╔════╝████╗  ██║╚══██╔══╝
+  ███████║██║    ███████║██║  ███╗█████╗  ██╔██╗ ██║   ██║   
+  ██╔══██║██║    ██╔══██║██║   ██║██╔══╝  ██║╚██╗██║   ██║   
+  ██║  ██║██████╗██║  ██║╚██████╔╝███████╗██║ ╚████║   ██║   
+  ╚═╝  ╚═╝╚═════╝╚═╝  ╚═╝ ╚═════╝ ╚══════╝╚═╝  ╚═══╝   ╚═╝   
 ```
 
 ### Multi-Modal AI Assistant
@@ -47,7 +46,7 @@ A powerful multi-modal AI assistant combining advanced language models with visi
 - **Web Browsing** - Playwright-powered scraping with screenshots
 - **Model Toggle** - Switch between Online/Cloud/Local models seamlessly
 - **PDF Context** - Upload documents for context-aware responses
-- **RAG Storage** - Persistent conversation history with Supabase
+- **Local Storage** - Persistent conversation history in JSON format
 - **Modern UI** - Dark theme with neon green accents and Orbitron font
 
 ---
@@ -61,7 +60,7 @@ A powerful multi-modal AI assistant combining advanced language models with visi
 <tr><td><b>AI (Cloud)</b></td><td>Ollama Cloud (GPT-OSS, DeepSeek, Qwen3-Coder)</td></tr>
 <tr><td><b>AI (Local)</b></td><td>Ollama (LLaVA, Moondream, TinyLlama)</td></tr>
 <tr><td><b>Vision</b></td><td>Moondream 1.8B, Molmo 2 8B</td></tr>
-<tr><td><b>Storage</b></td><td>Supabase + Local JSON Fallback</td></tr>
+<tr><td><b>Storage</b></td><td>Local JSON (rag_storage.json)</td></tr>
 <tr><td><b>Web Scraping</b></td><td>Playwright (Headless Chrome)</td></tr>
 </table>
 
@@ -102,7 +101,7 @@ Agent/
 ├── text.py             # Text response handler
 ├── vision.py           # Vision/image analysis
 ├── browsing.py         # Web browser automation
-├── supabase_rag.py     # RAG storage manager
+├── rag_storage.py      # Local JSON storage manager
 ├── pratik_prompt.py    # System prompt configuration
 ├── requirements.txt    # Python dependencies
 ├── .env                # API keys (not in repo)
@@ -217,16 +216,15 @@ Response:
 Create a `.env` file in the project root:
 
 ```bash
-# OpenRouter API (Online Models)
+# OpenRouter API (Required for Online Models)
 OPENROUTER_API_KEY=sk-or-v1-your-key-here
 
-# Ollama Cloud (Cloud Models)
+# Ollama Cloud (Optional - for Cloud Models)
 OLLAMA_CLOUD_URL=https://ollama.com
 OLLAMA_CLOUD_API_KEY=your-ollama-cloud-key
 
-# Supabase (Optional - for RAG Storage)
-SUPABASE_URL=https://your-project.supabase.co
-SUPABASE_KEY=your-supabase-key
+# API Configuration
+API_BASE_URL=http://127.0.0.1:8002
 
 # Application Settings
 APP_HOST=127.0.0.1
@@ -301,7 +299,7 @@ The system automatically falls back to alternative models if primary models fail
 The AI identifies as "Pratik AI Agent" and maintains consistent personality across all interactions.
 
 ### RAG Storage
-Conversations are stored in Supabase (or local JSON fallback) for context-aware responses across sessions.
+Conversations are automatically stored in `rag_storage.json` for context-aware responses across sessions.
 
 ### PDF Context Support
 Upload PDFs in Text mode to provide additional context for more accurate and relevant responses.
@@ -336,7 +334,6 @@ git push origin feature/AmazingFeature
 - Test your changes thoroughly
 
 ---
-
 
 
 <div align="center">
