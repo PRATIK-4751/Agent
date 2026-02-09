@@ -327,13 +327,7 @@ git push origin feature/AmazingFeature
 # 5. Open a Pull Request
 ```
 
-### Contribution Guidelines
-- Follow PEP 8 style guide for Python code
-- Add comments for complex logic
-- Update documentation for new features
-- Test your changes thoroughly
 
----
 
 
 <div align="center">
