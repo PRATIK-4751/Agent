@@ -338,27 +338,6 @@ git push origin feature/AmazingFeature
 
 <div align="center">
 
-## Author
 
-**Pratik Raj**
-
-```
-╔═══════════════════════════════════════╗
-║  Made with dedication and innovation  ║
-║  AI Agent v1.0 - 2025                 ║
-╚═══════════════════════════════════════╝
-```
-
-### Support
-
-For issues, questions, or feature requests:
-
-**GitHub Issues**: [github.com/PRATIK-4751/Agent/issues](https://github.com/PRATIK-4751/Agent/issues)
-
-**Repository**: [github.com/PRATIK-4751/Agent](https://github.com/PRATIK-4751/Agent)
-
----
-
-**⭐ Star this repo if you find it useful!**
 
 </div>
